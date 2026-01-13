@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Friends"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:gravity="center" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/friendsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/emptyTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="No other users found. Register another account to see friends here."
+        android:textSize="16sp"
+        android:padding="32dp"
+        android:gravity="center"
+        android:visibility="gone" />
+
+</LinearLayout>
