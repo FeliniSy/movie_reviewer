@@ -27,8 +27,14 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        database = MovieDatabase.getInstance(this);
-        prefsHelper = new SharedPreferencesHelper(this);
+        try {
+            database = MovieDatabase.getInstance(this);
+            prefsHelper = new SharedPreferencesHelper(this);
+        } catch (Exception e) {
+            Toast.makeText(this, "Database initialization error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+            return;
+        }
 
         if (prefsHelper.isLoggedIn()) {
             startActivity(new Intent(this, MainActivity.class));
@@ -56,14 +62,24 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        User user = database.userDao().login(email, password);
-        if (user != null) {
-            prefsHelper.saveUser(user.getId(), user.getUsername());
-            Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
-        } else {
-            Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+        if (database == null) {
+            Toast.makeText(this, "Database not initialized. Please restart the app.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        try {
+            User user = database.userDao().login(email, password);
+            if (user != null) {
+                prefsHelper.saveUser(user.getId(), user.getUsername());
+                Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+            } else {
+                Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Login error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 }

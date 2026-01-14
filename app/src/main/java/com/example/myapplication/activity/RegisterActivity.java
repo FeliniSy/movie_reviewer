@@ -26,8 +26,14 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        database = MovieDatabase.getInstance(this);
-        prefsHelper = new SharedPreferencesHelper(this);
+        try {
+            database = MovieDatabase.getInstance(this);
+            prefsHelper = new SharedPreferencesHelper(this);
+        } catch (Exception e) {
+            Toast.makeText(this, "Database initialization error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+            return;
+        }
 
         usernameEditText = findViewById(R.id.usernameEditText);
         emailEditText = findViewById(R.id.emailEditText);
@@ -52,23 +58,33 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        User existingUser = database.userDao().getUserByEmail(email);
-        if (existingUser != null) {
-            Toast.makeText(this, "Email already registered", Toast.LENGTH_SHORT).show();
+        if (database == null) {
+            Toast.makeText(this, "Database not initialized. Please restart the app.", Toast.LENGTH_LONG).show();
             return;
         }
 
-        User newUser = new User(username, email, password);
-        long userId = database.userDao().insertUser(newUser);
-        
-        if (userId > 0) {
-            newUser.setId((int) userId);
-            prefsHelper.saveUser(newUser.getId(), newUser.getUsername());
-            Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
-            startActivity(new android.content.Intent(this, MainActivity.class));
-            finish();
-        } else {
-            Toast.makeText(this, "Registration failed", Toast.LENGTH_SHORT).show();
+        try {
+            User existingUser = database.userDao().getUserByEmail(email);
+            if (existingUser != null) {
+                Toast.makeText(this, "Email already registered", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            User newUser = new User(username, email, password);
+            long userId = database.userDao().insertUser(newUser);
+            
+            if (userId > 0) {
+                newUser.setId((int) userId);
+                prefsHelper.saveUser(newUser.getId(), newUser.getUsername());
+                Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                startActivity(new android.content.Intent(this, MainActivity.class));
+                finish();
+            } else {
+                Toast.makeText(this, "Registration failed", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Registration error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 }
